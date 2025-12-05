@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/Home">
+
+    <fragment
+        android:id="@+id/Home"
+        android:name="com.example.tbokhle.fragments.FragmentOne"
+        android:label="Home"
+        tools:layout="@layout/fragment_one" />
+
+    <fragment
+        android:id="@+id/Pantry"
+        android:name="com.example.tbokhle.fragments.FragmentTwo"
+        android:label="Pantry"
+        tools:layout="@layout/fragment_two" />
+
+    <fragment
+        android:id="@+id/Scan"
+        android:name="com.example.tbokhle.fragments.FragmentThree"
+        android:label="Scan"
+        tools:layout="@layout/fragment_three" />
+
+    <fragment
+        android:id="@+id/Recipes"
+        android:name="com.example.tbokhle.fragments.FragmentFour"
+        android:label="Recipes"
+        tools:layout="@layout/fragment_four" />
+
+    <fragment
+        android:id="@+id/Shopping"
+        android:name="com.example.tbokhle.fragments.FragmentFive"
+        android:label="Shopping"
+        tools:layout="@layout/fragment_five" />
+
+    <fragment
+        android:id="@+id/Family"
+        android:name="com.example.tbokhle.fragments.FragmentSix"
+        android:label="Family"
+        tools:layout="@layout/fragment_six" />
+
+</navigation>

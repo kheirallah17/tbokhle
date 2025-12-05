@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/fragmentOne"
+        android:title="Home"
+        android:icon="@drawable/ic_home" />
+
+    <item
+        android:id="@+id/fragmentTwo"
+        android:title="Pantry"
+        android:icon="@drawable/ic_pantry" />
+
+    <item
+        android:id="@+id/fragmentThree"
+        android:title="Scan"
+        android:icon="@drawable/ic_scan" />
+
+    <item
+        android:id="@+id/fragmentFour"
+        android:title="Recipes"
+        android:icon="@drawable/ic_recipes" />
+
+    <item
+        android:id="@+id/fragmentFive"
+        android:title="Shopping"
+        android:icon="@drawable/ic_shopping" />
+
+    <item
+        android:id="@+id/fragmentSix"
+        android:title="Family"
+        android:icon="@drawable/ic_family" />
+</menu>
