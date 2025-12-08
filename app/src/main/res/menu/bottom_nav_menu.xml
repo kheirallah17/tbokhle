@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/fragmentOne"
+        android:id="@+id/Home"
         android:title="Home"
         android:icon="@drawable/ic_home" />
 
     <item
-        android:id="@+id/fragmentTwo"
+        android:id="@+id/Pantry"
         android:title="Pantry"
         android:icon="@drawable/ic_pantry" />
 
     <item
-        android:id="@+id/fragmentThree"
+        android:id="@+id/Scan"
         android:title="Scan"
         android:icon="@drawable/ic_scan" />
 
     <item
-        android:id="@+id/fragmentFour"
+        android:id="@+id/Recipes"
         android:title="Recipes"
         android:icon="@drawable/ic_recipes" />
 
     <item
-        android:id="@+id/fragmentFive"
+        android:id="@+id/Shopping"
         android:title="Shopping"
         android:icon="@drawable/ic_shopping" />
 
     <item
-        android:id="@+id/fragmentSix"
+        android:id="@+id/Family"
         android:title="Family"
         android:icon="@drawable/ic_family" />
 </menu>
