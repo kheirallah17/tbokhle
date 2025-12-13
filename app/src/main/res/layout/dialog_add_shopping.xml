@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:inputType="text"
+        android:id="@+id/et_name"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:hint="@string/item_name_milk_shopping"/>
+
+    <EditText
+        android:id="@+id/et_category"
+        android:inputType="text"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:hint="@string/category_dairy_shopping"/>
+
+    <EditText
+        android:id="@+id/et_qty"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:hint="@string/quantity_shopping"
+        android:inputType="numberDecimal"/>
+
+    <EditText
+        android:id="@+id/et_unit"
+        android:inputType="text"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:hint="@string/unit_l_kg_pieces_shopping"/>
+
+    <EditText
+        android:id="@+id/et_added_by"
+        android:inputType="text"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:hint="@string/added_by_you_shopping"/>
+</LinearLayout>

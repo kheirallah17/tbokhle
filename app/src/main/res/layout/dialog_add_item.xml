@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/et_name"
+        android:inputType="text"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:hint="@string/item_name_milk"
+        android:textColorHint="#666666"/>
+
+
+    <EditText
+        android:id="@+id/et_category"
+        android:inputType="text"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:textColorHint="#666666"
+        android:hint="@string/category_dairy"
+        android:layout_marginTop="10dp"/>
+
+    <EditText
+        android:id="@+id/et_qty"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:hint="@string/quantity_e_g_1"
+        android:textColorHint="#666666"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="10dp"/>
+
+    <EditText
+        android:id="@+id/et_unit"
+        android:inputType="text"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:hint="@string/unit_e_g_l_kg_pieces"
+        android:textColorHint="#666666"
+        android:layout_marginTop="10dp"/>
+
+    <EditText
+        android:id="@+id/et_days"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:hint="@string/days_to_expire"
+        android:textColorHint="#666666"
+        android:inputType="numberSigned"
+        android:layout_marginTop="10dp"/>
+
+</LinearLayout>
