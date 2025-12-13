@@ -7,7 +7,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
+import com.example.tbokhle.fragments.FragmentTwo;
 import com.example.tbokhle.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
