@@ -1,15 +1,43 @@
+# =========================
+# ANDROID STUDIO / GRADLE
+# =========================
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+.gradle/
 local.properties
+.settings/
+.DS_Store
+/build/
+*/build/
+
+# Android Studio Navigation + IDE files
+.idea/
+.idea/caches
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# External Build
+.externalNativeBuild/
+.cxx/
+
+# Signing keys (VERY IMPORTANT)
+*.jks
+*.keystore
+
+# Log files
+firebase-debug.log
+
+# =========================
+# FIREBASE
+# =========================
+# Do NOT ignore google-services.json
+# (must remain in repo so others can run the project)
+# google-services.json is SAFE to push
+
+# =========================
+# MISC
+# =========================
+captures/
+output.json
+

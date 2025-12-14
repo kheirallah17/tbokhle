@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1091814514206",
+    "project_id": "ttbokhle",
+    "storage_bucket": "ttbokhle.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1091814514206:android:b7ab382470a5b21fa7d80f",
+        "android_client_info": {
+          "package_name": "com.example.tbokhle"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBGCKcV_0VNQUrUjbuKg1kzDsDDWermnk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
