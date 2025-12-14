@@ -70,7 +70,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Easy"
+                android:text="@string/easy"
                 android:alpha="0.7"/>
             <TextView
                 android:gravity="center"
@@ -78,7 +78,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="350 kcal"
+                android:text="@string/_350_kcal"
                 android:alpha="0.7"/>
         </TableRow>
     </TableLayout>
