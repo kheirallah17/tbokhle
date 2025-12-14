@@ -1,10 +1,4 @@
-package com.example.tbokhle;
-
-import android.content.Context;
-
-import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.List;
+package com.example.tbokhle.model;
 
 public class Recipe {
     public String name;

@@ -8,13 +8,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.example.tbokhle.R;
-import com.example.tbokhle.Recipe;
-import com.example.tbokhle.RecipesAdapter;
+import com.example.tbokhle.model.Recipe;
+import com.example.tbokhle.adapters.RecipesAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

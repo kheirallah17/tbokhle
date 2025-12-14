@@ -50,4 +50,5 @@
     <string name="item_shopping_added_item_info">2L • Dairy • Added by You</string>
     <string name="item_shopping_delete_btn">Delete</string>
     <string name="item_shopping_item_name">Milk</string>
+    <string name="title_activity_main">Main Activity</string>
 </resources>
