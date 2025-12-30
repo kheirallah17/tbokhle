@@ -51,4 +51,10 @@
     <string name="item_shopping_delete_btn">Delete</string>
     <string name="item_shopping_item_name">Milk</string>
     <string name="title_activity_main">Main Activity</string>
+    <string name="manage_your_household">Manage your household</string>
+    <string name="family_members">Family Members</string>
+    <string name="invite">Invite</string>
+    <string name="admin">Admin</string>
+    <string name="you">You</string>
+    <string name="you_email_com">you@email.com</string>
 </resources>
