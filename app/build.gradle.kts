@@ -38,7 +38,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -51,10 +50,9 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-    // FIREBASE
-    implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
+    implementation("com.android.volley:volley:1.2.1")
 
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-storage")
+    implementation("com.github.bumptech.glide:glide:4.16.0") // Glide to load images from URL
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0") // Glide compiler for generated API
 }
+
