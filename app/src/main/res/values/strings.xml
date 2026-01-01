@@ -1,6 +1,16 @@
 <resources>
     <string name="app_name">tbokhle</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!--kheirallah-->
+    <string-array name="categories">
+        <item>Vegetable</item>
+        <item>Fruit</item>
+        <item>Dairy</item>
+        <item>Meat</item>
+        <item>Beverage</item>
+        <item>Other</item>
+    </string-array>
+
 
     <!-- Recipes / UI -->
     <string name="based_on_your_available_ingredients">Based on your available ingredients</string>

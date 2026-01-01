@@ -53,7 +53,8 @@ dependencies {
 
     // FIREBASE
     implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
-
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+    implementation("com.android.volley:volley:1.2.1")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
