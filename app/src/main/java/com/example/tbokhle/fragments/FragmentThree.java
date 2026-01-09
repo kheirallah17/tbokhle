@@ -1,66 +1,240 @@
 package com.example.tbokhle.fragments;
 
+import android.Manifest;
+import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.tbokhle.R;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FragmentThree#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
 public class FragmentThree extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    // URL of your PHP file (change IP if using real phone)
+    private static final String ADD_PRODUCT_URL =
+            "http://10.0.2.2/tbokhle_api/add_product.php";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    // Launchers
+    private ActivityResultLauncher<String> cameraPermissionLauncher;
+    private ActivityResultLauncher<Intent> cameraLauncher;
 
-    public FragmentThree() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment fragment_three.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static FragmentThree newInstance(String param1, String param2) {
-        FragmentThree fragment = new FragmentThree();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private Bitmap capturedImage;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
+        // Camera permission launcher
+        cameraPermissionLauncher =
+                registerForActivityResult(
+                        new ActivityResultContracts.RequestPermission(),
+                        granted -> {
+                            if (granted) {
+                                openCamera();
+                            } else {
+                                Toast.makeText(requireContext(),
+                                        "Camera permission required",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                );
+
+        // Camera result launcher
+        cameraLauncher =
+                registerForActivityResult(
+                        new ActivityResultContracts.StartActivityForResult(),
+                        result -> {
+                            if (result.getResultCode() == getActivity().RESULT_OK
+                                    && result.getData() != null) {
+
+                                Bundle extras = result.getData().getExtras();
+                                capturedImage = (Bitmap) extras.get("data");
+
+                                if (capturedImage != null) {
+                                    runTextRecognition(capturedImage);
+                                }
+                            }
+                        }
+                );
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_three, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_three, container, false);
+
+        view.findViewById(R.id.btnStartScanning)
+                .setOnClickListener(v -> checkCameraPermission());
+
+        return view;
+    }
+
+    // Check camera permission
+    private void checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED) {
+            openCamera();
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+        }
+    }
+
+    // Open phone camera
+    private void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraLauncher.launch(intent);
+    }
+
+    // Run ML Kit text recognition
+    private void runTextRecognition(Bitmap bitmap) {
+
+        InputImage image = InputImage.fromBitmap(bitmap, 0);
+
+        TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+                .process(image)
+                .addOnSuccessListener(result -> {
+
+                    String detectedText = result.getText();
+                    String productName = detectedText.isEmpty()
+                            ? ""
+                            : detectedText.split("\n")[0];
+
+                    showProductDialog(productName);
+
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(requireContext(),
+                                "Text recognition failed",
+                                Toast.LENGTH_SHORT).show());
+    }
+
+    // Show dialog to complete product info
+    private void showProductDialog(String autoProductName) {
+
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_add_products, null);
+
+        EditText etName = dialogView.findViewById(R.id.etProductName);
+        EditText etQty = dialogView.findViewById(R.id.etQuantity);
+        EditText etExpiry = dialogView.findViewById(R.id.etExpiry);
+        Spinner spCategory = dialogView.findViewById(R.id.spCategory);
+
+        etName.setText(autoProductName);
+
+        // Spinner setup
+        ArrayAdapter<CharSequence> adapter =
+                ArrayAdapter.createFromResource(
+                        requireContext(),
+                        R.array.categories,
+                        android.R.layout.simple_spinner_item
+                );
+        adapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item);
+        spCategory.setAdapter(adapter);
+
+        // Date picker
+        etExpiry.setOnClickListener(v -> {
+            Calendar c = Calendar.getInstance();
+            new DatePickerDialog(requireContext(),
+                    (view, y, m, d) ->
+                            etExpiry.setText(y + "-" + (m + 1) + "-" + d),
+                    c.get(Calendar.YEAR),
+                    c.get(Calendar.MONTH),
+                    c.get(Calendar.DAY_OF_MONTH)
+            ).show();
+        });
+
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Add Product")
+                .setView(dialogView)
+                .setPositiveButton("Save", (dialog, which) -> {
+
+                    String name = etName.getText().toString().trim();
+                    String qty = etQty.getText().toString().trim();
+                    String date = etExpiry.getText().toString().trim();
+                    String category = spCategory.getSelectedItem().toString();
+
+                    if (name.isEmpty() || qty.isEmpty() || date.isEmpty()) {
+                        Toast.makeText(requireContext(),
+                                "Please fill all fields",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    saveProductToServer(name, qty, date, category);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    // Send product data to PHP using Volley
+    private void saveProductToServer(
+            String name,
+            String quantity,
+            String expiryDate,
+            String category
+    ) {
+
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                ADD_PRODUCT_URL,
+                response -> {
+                    if (response.trim().equals("success")) {
+                        Toast.makeText(requireContext(),
+                                "Product saved successfully",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(requireContext(),
+                                "Server error",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> Toast.makeText(requireContext(),
+                        "Network error",
+                        Toast.LENGTH_SHORT).show()
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("name", name);
+                params.put("quantity", quantity);
+                params.put("expiry_date", expiryDate);
+                params.put("category", category);
+                return params;
+            }
+        };
+
+        RequestQueue queue = Volley.newRequestQueue(requireContext());
+        queue.add(request);
     }
 }

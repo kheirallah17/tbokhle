@@ -22,20 +22,16 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // 1) Toolbar -> ActionBar
         setSupportActionBar(binding.myToolBar);
 
-        // 2) NavController
         NavHostFragment navHostFragment =
                 (NavHostFragment) getSupportFragmentManager()
                         .findFragmentById(R.id.nav_host_fragment_activity_main);
 
         NavController navController = navHostFragment.getNavController();
 
-        // 3) Bottom Navigation
         NavigationUI.setupWithNavController(binding.navView, navController);
 
-        // 4) IMPORTANT: connect ActionBar title to NavController (uses fragment labels)
         appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.Home, R.id.Pantry, R.id.Scan, R.id.Recipes, R.id.Shopping, R.id.Family
         ).build();

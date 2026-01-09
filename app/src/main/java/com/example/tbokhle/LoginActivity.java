@@ -3,7 +3,6 @@ package com.example.tbokhle;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -12,7 +11,15 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -20,7 +27,11 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private TextView loginToRegister;
 
-    private FirebaseAuth auth;   // Firebase Auth instance
+    private SessionManager session;
+
+    // Emulator -> your PC localhost is 10.0.2.2
+    private static final String LOGIN_URL =
+            "http://10.0.2.2/tbokhle_api/login.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,19 +39,22 @@ public class LoginActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
 
-        // Firebase Auth
-        auth = FirebaseAuth.getInstance();
+        session = new SessionManager(this);
 
-        // UI elements
+        // 1) Auto-login: if already saved before, go directly to MainActivity
+        if (session.isLoggedIn()) {
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+            return;
+        }
+
         etEmail = findViewById(R.id.etLoginEmail);
         etPassword = findViewById(R.id.etLoginPassword);
         btnLogin = findViewById(R.id.btnLogin);
         loginToRegister = findViewById(R.id.tvRegisterRedirect);
 
-        // LOGIN BUTTON
         btnLogin.setOnClickListener(v -> loginUser());
 
-        // GO TO REGISTER PAGE
         loginToRegister.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
             finish();
@@ -52,40 +66,59 @@ public class LoginActivity extends AppCompatActivity {
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
-        // VALIDATION
-        if (TextUtils.isEmpty(email)) {
-            etEmail.setError("Email is required");
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+            Toast.makeText(this, "Email and password are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (TextUtils.isEmpty(password)) {
-            etPassword.setError("Password is required");
-            return;
-        }
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                LOGIN_URL,
+                response -> {
+                    try {
+                        // Expected JSON: {"status":"success","id":"12","email":"x@x.com"}
+                        JSONObject json = new JSONObject(response.trim());
 
-        if (password.length() < 6) {
-            etPassword.setError("Password must be at least 6 characters");
-            return;
-        }
+                        String status = json.optString("status", "");
+                        if ("success".equalsIgnoreCase(status)) {
 
-        // FIREBASE LOGIN
-        auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
+                            String userId = json.optString("id", "");
+                            String userEmail = json.optString("email", email);
 
-                    if (task.isSuccessful()) {
+                            // 2) Save user data locally as key/value (SharedPreferences)
+                            session.saveLogin(userId, userEmail);
 
+                            Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            finish();
+
+                        } else {
+                            Toast.makeText(LoginActivity.this,
+                                    json.optString("message", "Invalid email or password"),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+
+                    } catch (Exception e) {
                         Toast.makeText(LoginActivity.this,
-                                "Login successful!", Toast.LENGTH_SHORT).show();
-
-                        // OPEN MAIN ACTIVITY
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        finish();
-
-                    } else {
-                        Toast.makeText(LoginActivity.this,
-                                "Login failed: " + task.getException().getMessage(),
+                                "Bad server response (not JSON): " + response,
                                 Toast.LENGTH_LONG).show();
                     }
-                });
+                },
+                error -> Toast.makeText(LoginActivity.this,
+                        "Network error: " + error.getMessage(),
+                        Toast.LENGTH_SHORT).show()
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("email", email);
+                params.put("password", password);
+                return params;
+            }
+        };
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(request);
     }
 }
