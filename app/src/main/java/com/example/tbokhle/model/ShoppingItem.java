@@ -1,6 +1,7 @@
 package com.example.tbokhle.model;
 
 public class ShoppingItem {
+    public int id;
     public String name;
     public double quantity;
     public String unit;
@@ -8,7 +9,8 @@ public class ShoppingItem {
     public String addedBy;
     public boolean done;
 
-    public ShoppingItem(String name, double quantity, String unit, String category, String addedBy, boolean done) {
+    public ShoppingItem(int id, String name, double quantity, String unit, String category, String addedBy, boolean done) {
+        this.id=id;
         this.name = name;
         this.quantity = quantity;
         this.unit = unit;

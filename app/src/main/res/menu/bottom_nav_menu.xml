@@ -29,4 +29,8 @@
         android:id="@+id/Family"
         android:title="Family"
         android:icon="@drawable/ic_family" />
+    <item
+        android:id="@+id/action_delete_pantry"
+        android:title="Delete"
+        android:icon="@drawable/ic_delete" />
 </menu>

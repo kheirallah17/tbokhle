@@ -1,13 +1,15 @@
 package com.example.tbokhle.model;
 
 public class PantryItem {
+    public int id ;
     public String name;
     public String category;
     public double quantity;
     public String unit;
     public int daysToExpire;
 
-    public PantryItem(String name, String category, double quantity, String unit, int daysToExpire) {
+    public PantryItem(int id, String name, String category, double quantity, String unit, int daysToExpire) {
+        this.id=id;
         this.name = name;
         this.category = category;
         this.quantity = quantity;

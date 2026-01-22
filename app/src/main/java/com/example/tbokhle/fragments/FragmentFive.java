@@ -1,6 +1,7 @@
 package com.example.tbokhle.fragments;
 
 import android.app.AlertDialog;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,15 +17,27 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.tbokhle.R;
 import com.example.tbokhle.adapters.ShoppingAdapter;
 import com.example.tbokhle.model.ShoppingItem;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FragmentFive extends Fragment implements ShoppingAdapter.Listener {
+
+    // 🔗 API base
+    private static final String BASE_URL =
+            "http://10.0.2.2/Tbokhle/";
 
     private ShoppingAdapter adapter;
     private final List<ShoppingItem> items = new ArrayList<>();
@@ -32,7 +46,11 @@ public class FragmentFive extends Fragment implements ShoppingAdapter.Listener {
     private ProgressBar progressBar;
     private RecyclerView recycler;
     private TextView tvToggle;
+
     private boolean hidden = false;
+
+    // later from login
+    private int householdId = 1;
 
     public FragmentFive() {}
 
@@ -48,15 +66,14 @@ public class FragmentFive extends Fragment implements ShoppingAdapter.Listener {
         progressBar = view.findViewById(R.id.progress_bar);
         recycler = view.findViewById(R.id.recycler_shopping);
         tvToggle = view.findViewById(R.id.tv_toggle);
+
         FloatingActionButton btnAdd = view.findViewById(R.id.btn_add_shopping);
 
         recycler.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new ShoppingAdapter(this);
         recycler.setAdapter(adapter);
 
-        seedDummyData();
-        adapter.setItems(items);
-        updateProgressUI();
+        loadShoppingItems(); // ✅ FROM DB
 
         tvToggle.setOnClickListener(v -> {
             hidden = !hidden;
@@ -69,32 +86,75 @@ public class FragmentFive extends Fragment implements ShoppingAdapter.Listener {
         return view;
     }
 
-    private void seedDummyData() {
-        items.clear();
-        items.add(new ShoppingItem("Milk", 2, "L", "Dairy", "You", false));
-        items.add(new ShoppingItem("Tomatoes", 1, "kg", "Vegetables", "Sarah", true));
-        items.add(new ShoppingItem("Chicken Breast", 600, "g", "Meat", "You", false));
-        items.add(new ShoppingItem("Bread", 1, "loaf", "Bakery", "John", false));
-        items.add(new ShoppingItem("Olive Oil", 500, "ml", "Oils", "You", false));
-        items.add(new ShoppingItem("Pasta", 500, "g", "Grains", "Sarah", true));
-        items.add(new ShoppingItem("Eggs", 12, "pieces", "Dairy", "You", false));
+    // -----------------------------
+    // 📥 LOAD SHOPPING LIST
+    // -----------------------------
+    private void loadShoppingItems() {
+
+        Uri uri = Uri.parse(BASE_URL + "shopping/get_shopping.php")
+                .buildUpon()
+                .appendQueryParameter("household_id", String.valueOf(householdId))
+                .build();
+
+        JsonArrayRequest req = new JsonArrayRequest(
+                Request.Method.GET,
+                uri.toString(),
+                null,
+                response -> {
+                    items.clear();
+
+                    for (int i = 0; i < response.length(); i++) {
+                        JSONObject o = response.optJSONObject(i);
+                        if (o == null) continue;
+
+                        items.add(new ShoppingItem(
+                                o.optInt("id"),
+                                o.optString("name"),
+                                o.optDouble("quantity"),
+                                o.optString("unit"),
+                                o.optString("category"),
+                                o.optString("added_by"),
+                                o.optBoolean("is_done")
+                        ));
+                    }
+
+                    adapter.setItems(items);
+                    updateProgressUI();
+                },
+                error -> Toast.makeText(
+                        requireContext(),
+                        "Failed to load shopping list",
+                        Toast.LENGTH_SHORT
+                ).show()
+        );
+
+        Volley.newRequestQueue(requireContext()).add(req);
     }
 
+    // -----------------------------
+    // 📊 PROGRESS
+    // -----------------------------
     private void updateProgressUI() {
         int total = items.size();
         int done = 0;
+
         for (ShoppingItem i : items) if (i.done) done++;
 
         tvProgress.setText(done + " of " + total + " items completed");
 
-        int percent = (total == 0) ? 0 : (int) ((done * 100.0f) / total);
+        int percent = (total == 0) ? 0 : (done * 100 / total);
         progressBar.setProgress(percent);
     }
 
+    // -----------------------------
+    // ➕ ADD ITEM (POST → DB)
+    // -----------------------------
     private void showAddDialog() {
+
         if (getContext() == null) return;
 
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_shopping, null);
+        View dialogView = LayoutInflater.from(getContext())
+                .inflate(R.layout.dialog_add_shopping, null);
 
         EditText etName = dialogView.findViewById(R.id.et_name);
         EditText etCategory = dialogView.findViewById(R.id.et_category);
@@ -106,11 +166,11 @@ public class FragmentFive extends Fragment implements ShoppingAdapter.Listener {
                 .setTitle("Add Shopping Item")
                 .setView(dialogView)
                 .setPositiveButton("Add", (d, w) -> {
+
                     String name = etName.getText().toString().trim();
                     String category = etCategory.getText().toString().trim();
                     String unit = etUnit.getText().toString().trim();
                     String addedBy = etAddedBy.getText().toString().trim();
-
                     double qty = safeDouble(etQty.getText().toString().trim());
 
                     if (name.isEmpty()) name = "Unnamed";
@@ -118,23 +178,57 @@ public class FragmentFive extends Fragment implements ShoppingAdapter.Listener {
                     if (unit.isEmpty()) unit = "pcs";
                     if (addedBy.isEmpty()) addedBy = "You";
 
-                    items.add(0, new ShoppingItem(name, qty, unit, category, addedBy, false));
-                    adapter.setItems(items);
-                    updateProgressUI();
+                    addShoppingItem(name, category, qty, unit, addedBy);
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
-    private double safeDouble(String s) {
-        try { return Double.parseDouble(s); } catch (Exception e) { return 1; }
+    private void addShoppingItem(String name, String category,
+                                 double qty, String unit, String addedBy) {
+
+        StringRequest req = new StringRequest(
+                Request.Method.POST,
+                BASE_URL + "shopping/add_shopping.php",
+                response -> loadShoppingItems(),
+                error -> Toast.makeText(
+                        requireContext(),
+                        "Failed to add item",
+                        Toast.LENGTH_SHORT
+                ).show()
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> p = new HashMap<>();
+                p.put("household_id", String.valueOf(householdId));
+                p.put("name", name);
+                p.put("category", category);
+                p.put("quantity", String.valueOf(qty));
+                p.put("unit", unit);
+                p.put("added_by", addedBy);
+                p.put("is_auto", "0");
+                return p;
+            }
+        };
+
+        Volley.newRequestQueue(requireContext()).add(req);
     }
 
+    // -----------------------------
+    // 🛟 HELPERS
+    // -----------------------------
+    private double safeDouble(String s) {
+        try { return Double.parseDouble(s); }
+        catch (Exception e) { return 1; }
+    }
+
+    // -----------------------------
+    // ADAPTER CALLBACKS
+    // -----------------------------
     @Override
     public void onToggleDone(int position, boolean done) {
         if (position < 0 || position >= items.size()) return;
         items.get(position).done = done;
-        adapter.notifyItemChanged(position);
         updateProgressUI();
     }
 
