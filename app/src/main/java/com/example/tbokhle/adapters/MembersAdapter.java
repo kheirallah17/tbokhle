@@ -2,7 +2,6 @@ package com.example.tbokhle.adapters;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,17 +33,27 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.ViewHold
     private final FragmentSix fragment;
     private final RequestQueue queue;
 
-    private final int householdId = 1;   // TEMP
+    private final int currentUserId;
 
+    private final int householdId = 1;
+
+    // ==========================
+    // CONSTRUCTOR
+    // ==========================
     public MembersAdapter(Context context,
                           JSONArray members,
-                          FragmentSix fragment) {
+                          FragmentSix fragment,
+                          int currentUserId) {   // 🔹 ADDED
         this.context = context;
         this.members = members;
         this.fragment = fragment;
+        this.currentUserId = currentUserId;     // 🔹 ADDED
         this.queue = Volley.newRequestQueue(context);
     }
 
+    // ==========================
+    // VIEW HOLDER
+    // ==========================
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvName, tvEmail, tvRole;
@@ -67,23 +76,38 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.ViewHold
 
             try {
                 JSONObject m = members.getJSONObject(pos);
-                int userId = m.getInt("id");
+
+                int clickedUserId = m.getInt("id");
                 String name = m.optString("full_name");
+                String role = m.optString("role", "member");
+
+                // 🚫 ADMIN CANNOT REMOVE HIMSELF (THE ONLY RULE ADDED)
+                if (role.equalsIgnoreCase("admin") && clickedUserId == currentUserId) {
+                    Toast.makeText(context,
+                            "Admin cannot remove himself",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 new AlertDialog.Builder(context)
                         .setTitle("Remove member")
                         .setMessage("Remove " + name + " from household?")
                         .setPositiveButton("Remove",
-                                (d, w) -> removeMember(userId))
+                                (d, w) -> removeMember(clickedUserId))
                         .setNegativeButton("Cancel", null)
                         .show();
 
             } catch (JSONException e) {
-                e.printStackTrace();
+                Toast.makeText(context,
+                        "JSON error: " + e.getMessage(),
+                        Toast.LENGTH_LONG).show();
             }
         }
     }
 
+    // ==========================
+    // ADAPTER METHODS
+    // ==========================
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -132,10 +156,14 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.ViewHold
                 Request.Method.POST,
                 url,
                 res -> {
-                    Toast.makeText(context, "Member removed", Toast.LENGTH_SHORT).show();
-                    fragment.loadHouseholdMembers(); // ✅ TEMPLATE STYLE
+                    Toast.makeText(context,
+                            "Member removed",
+                            Toast.LENGTH_SHORT).show();
+                    fragment.loadHouseholdMembers();
                 },
-                err -> Toast.makeText(context, "Remove failed", Toast.LENGTH_SHORT).show()
+                err -> Toast.makeText(context,
+                        "Remove failed",
+                        Toast.LENGTH_SHORT).show()
         ) {
             @Override
             protected Map<String, String> getParams() {
@@ -149,6 +177,3 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.ViewHold
         queue.add(req);
     }
 }
-
-
-

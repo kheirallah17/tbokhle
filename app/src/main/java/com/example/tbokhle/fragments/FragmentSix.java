@@ -2,6 +2,7 @@ package com.example.tbokhle.fragments;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.tbokhle.LoginActivity;
 import com.example.tbokhle.R;
 import com.example.tbokhle.adapters.HouseholdsAdapter;
 import com.example.tbokhle.adapters.MembersAdapter;
@@ -34,6 +36,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.example.tbokhle.SessionManager;
 
 public class FragmentSix extends Fragment {
 
@@ -49,10 +52,11 @@ public class FragmentSix extends Fragment {
     RequestQueue queue;
 
     // ==========================
-    // TEMP STATE (until login/selection exists)
+    // login
     // ==========================
-    int userId = 1;
-    int householdId = 1;
+    SessionManager session;
+    int userId;
+    int householdId = 0;
 
     public FragmentSix() {
         super(R.layout.fragment_six);
@@ -61,6 +65,16 @@ public class FragmentSix extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        session = new SessionManager(requireContext());
+
+        if (!session.isLoggedIn()) {
+            Toast.makeText(requireContext(), "Please login", Toast.LENGTH_SHORT).show();
+
+            return;
+        }
+
+
+        userId = Integer.parseInt(session.getUserId());
 
         queue = Volley.newRequestQueue(requireContext());
 
@@ -111,7 +125,8 @@ public class FragmentSix extends Fragment {
                         new MembersAdapter(
                                 requireContext(),
                                 response,
-                                this
+                                this,
+                                Integer.parseInt(session.getUserId())
                         )
                 ),
                 error -> Toast.makeText(
@@ -193,14 +208,26 @@ public class FragmentSix extends Fragment {
                 Request.Method.GET,
                 uri.toString(),
                 null,
-                response -> recHouseholds.setAdapter(
-                        new HouseholdsAdapter(
-                                requireContext(),
-                                response,
-                                userId,
-                                this::loadHouseholds
-                        )
-                ),
+                response -> {
+                    // ✅ If user has households, set the first one as active
+                    if (response.length() > 0 && householdId == 0) {
+                        try {
+                            householdId = response.getJSONObject(0).getInt("id");
+                            loadHouseholdMembers(); // reload members for that household
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    recHouseholds.setAdapter(
+                            new HouseholdsAdapter(
+                                    requireContext(),
+                                    response,
+                                    userId,
+                                    this::loadHouseholds
+                            )
+                    );
+                },
                 error -> Toast.makeText(
                         requireContext(),
                         "Failed to load households",
@@ -210,6 +237,7 @@ public class FragmentSix extends Fragment {
 
         queue.add(req);
     }
+
 
     // =====================================================
     // TOP MENU
@@ -225,13 +253,23 @@ public class FragmentSix extends Fragment {
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem item) {
                 if (item.getItemId() == R.id.action_logout) {
-                    Toast.makeText(requireContext(),
-                            "Logged out",
-                            Toast.LENGTH_SHORT).show();
+
+                    // 1️⃣ Clear session
+                    session.logout();
+
+                    // 2️⃣ Go to LoginActivity
+                    Intent i = new Intent(requireContext(), LoginActivity.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(i);
+
+                    // 3️⃣ Optional feedback
+                    Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show();
+
                     return true;
                 }
                 return false;
             }
+
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 

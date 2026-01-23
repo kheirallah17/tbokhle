@@ -61,7 +61,8 @@ public class HouseholdsAdapter extends RecyclerView.Adapter<HouseholdsAdapter.Vi
 
             try {
                 JSONObject h = households.getJSONObject(pos);
-                int householdId = h.getInt("household_id");
+
+                int householdId = h.optInt("id", -1);
                 String role = h.getString("role");
 
                 if ("admin".equalsIgnoreCase(role)) {
@@ -79,7 +80,12 @@ public class HouseholdsAdapter extends RecyclerView.Adapter<HouseholdsAdapter.Vi
                         .setNegativeButton("Cancel", null)
                         .show();
 
-            } catch (JSONException ignored) {}
+            } catch (JSONException e) {
+                Toast.makeText(context,
+                        "JSON ERROR: " + e.getMessage(),
+                        Toast.LENGTH_LONG).show();
+            }
+
         }
     }
 

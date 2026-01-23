@@ -288,6 +288,9 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvRecentActivity"
                     android:layout_width="match_parent"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:descendantFocusability="blocksDescendants"
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
                     android:overScrollMode="never" />
