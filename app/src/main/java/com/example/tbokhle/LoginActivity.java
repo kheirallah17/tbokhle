@@ -20,6 +20,8 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+// 🔹 ADD at top
+import com.android.volley.toolbox.JsonArrayRequest;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -87,6 +89,8 @@ public class LoginActivity extends AppCompatActivity {
 
                             // 2) Save user data locally as key/value (SharedPreferences)
                             session.saveLogin(userId, userEmail);
+                            // ADDED by maria
+                            fetchAndSetDefaultHousehold(userId);
 
                             Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
 
@@ -121,4 +125,43 @@ public class LoginActivity extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(this);
         queue.add(request);
     }
+    // ADDED by maria
+    private void fetchAndSetDefaultHousehold(String userId) {
+
+        String url = "http://10.0.2.2/tbokhle/get_user_households.php?user_id=" + userId;
+
+        JsonArrayRequest req = new JsonArrayRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+                    try {
+                        int selectedHousehold = -1;
+
+                        // 1️⃣ Prefer admin household
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject h = response.getJSONObject(i);
+                            if ("admin".equalsIgnoreCase(h.optString("role"))) {
+                                selectedHousehold = h.getInt("id");
+                                break;
+                            }
+                        }
+
+                        // 2️⃣ Fallback → first household
+                        if (selectedHousehold == -1 && response.length() > 0) {
+                            selectedHousehold = response.getJSONObject(0).getInt("id");
+                        }
+
+                        if (selectedHousehold != -1) {
+                            session.setHouseholdId(selectedHousehold); // ✅ STORED
+                        }
+
+                    } catch (Exception ignored) {}
+                },
+                error -> {}
+        );
+
+        Volley.newRequestQueue(this).add(req);
+    }
+
 }

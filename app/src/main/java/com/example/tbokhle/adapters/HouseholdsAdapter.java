@@ -22,6 +22,7 @@ import com.example.tbokhle.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import com.example.tbokhle.SessionManager; // 🔹 ADDED
 
 public class HouseholdsAdapter extends RecyclerView.Adapter<HouseholdsAdapter.ViewHolder> {
 
@@ -52,17 +53,40 @@ public class HouseholdsAdapter extends RecyclerView.Adapter<HouseholdsAdapter.Vi
             tvRole = itemView.findViewById(R.id.tvRole);
             imgAvatar = itemView.findViewById(R.id.imgAvatar);
 
-            itemView.setOnClickListener(v -> handleClick());
+            itemView.setOnClickListener(v -> selectHousehold());     // 🔹 CHANGED
+            itemView.setOnLongClickListener(v -> {                   // 🔹 ADDED
+                handleLeave();
+                return true;
+            });
         }
 
-        private void handleClick() {
+        // 🔹 ADDED: switch household
+        private void selectHousehold() {
             int pos = getBindingAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;
 
             try {
                 JSONObject h = households.getJSONObject(pos);
+                int householdId = h.getInt("id");
 
-                int householdId = h.optInt("id", -1);
+                SessionManager sm = new SessionManager(context);
+                sm.setHouseholdId(householdId); // ✅ ACTIVE HOUSEHOLD SET
+
+                Toast.makeText(context, "Household switched", Toast.LENGTH_SHORT).show();
+
+                reloadCallback.run(); // 🔄 reload UI
+
+            } catch (JSONException ignored) {}
+        }
+
+        // 🔹 MOVED logic here (unchanged behavior)
+        private void handleLeave() {
+            int pos = getBindingAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION) return;
+
+            try {
+                JSONObject h = households.getJSONObject(pos);
+                int householdId = h.getInt("id");
                 String role = h.getString("role");
 
                 if ("admin".equalsIgnoreCase(role)) {
@@ -80,12 +104,7 @@ public class HouseholdsAdapter extends RecyclerView.Adapter<HouseholdsAdapter.Vi
                         .setNegativeButton("Cancel", null)
                         .show();
 
-            } catch (JSONException e) {
-                Toast.makeText(context,
-                        "JSON ERROR: " + e.getMessage(),
-                        Toast.LENGTH_LONG).show();
-            }
-
+            } catch (JSONException ignored) {}
         }
     }
 

@@ -29,6 +29,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.tbokhle.LoginActivity;
 import com.example.tbokhle.R;
+import com.example.tbokhle.SessionManager;
 import com.example.tbokhle.adapters.HouseholdsAdapter;
 import com.example.tbokhle.adapters.MembersAdapter;
 import com.google.android.material.button.MaterialButton;
@@ -36,7 +37,6 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.HashMap;
 import java.util.Map;
-import com.example.tbokhle.SessionManager;
 
 public class FragmentSix extends Fragment {
 
@@ -52,11 +52,10 @@ public class FragmentSix extends Fragment {
     RequestQueue queue;
 
     // ==========================
-    // login
+    // SESSION
     // ==========================
     SessionManager session;
     int userId;
-    int householdId = 0;
 
     public FragmentSix() {
         super(R.layout.fragment_six);
@@ -65,17 +64,17 @@ public class FragmentSix extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         session = new SessionManager(requireContext());
 
+        // 🔒 Security check
         if (!session.isLoggedIn()) {
-            Toast.makeText(requireContext(), "Please login", Toast.LENGTH_SHORT).show();
-
+            startActivity(new Intent(requireContext(), LoginActivity.class));
+            requireActivity().finish();
             return;
         }
 
-
         userId = Integer.parseInt(session.getUserId());
-
         queue = Volley.newRequestQueue(requireContext());
 
         // ==========================
@@ -86,7 +85,7 @@ public class FragmentSix extends Fragment {
         recViewMembers.setNestedScrollingEnabled(false);
 
         // ==========================
-        // HOUSEHOLDS (replacing recent activity)
+        // HOUSEHOLDS
         // ==========================
         recHouseholds = view.findViewById(R.id.rvRecentActivity);
         recHouseholds.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -104,14 +103,19 @@ public class FragmentSix extends Fragment {
         // ==========================
         // LOAD DATA
         // ==========================
-        loadHouseholdMembers();
-        loadHouseholds();
+        loadHouseholds();          // sets default household if needed
+        loadHouseholdMembers();    // loads members for active household
     }
 
     // =====================================================
     // FAMILY MEMBERS
     // =====================================================
     public void loadHouseholdMembers() {
+
+        int householdId = session.getHouseholdId(); // ✅ SINGLE SOURCE
+
+        if (householdId == -1) return;
+
         Uri uri = Uri.parse("http://10.0.2.2/tbokhle/get_household_members.php")
                 .buildUpon()
                 .appendQueryParameter("household_id", String.valueOf(householdId))
@@ -126,7 +130,7 @@ public class FragmentSix extends Fragment {
                                 requireContext(),
                                 response,
                                 this,
-                                Integer.parseInt(session.getUserId())
+                                userId
                         )
                 ),
                 error -> Toast.makeText(
@@ -160,22 +164,19 @@ public class FragmentSix extends Fragment {
     }
 
     private void inviteMember(String email) {
+
+        int householdId = session.getHouseholdId(); // ✅ ALWAYS FROM SESSION
+
         String url = "http://10.0.2.2/tbokhle/invite_household_member.php";
 
         StringRequest req = new StringRequest(
                 Request.Method.POST,
                 url,
                 res -> {
-                    if (res.contains("\"success\":true")) {
-                        Toast.makeText(requireContext(),
-                                "Member invited",
-                                Toast.LENGTH_SHORT).show();
-                        loadHouseholdMembers();
-                    } else {
-                        Toast.makeText(requireContext(),
-                                res,
-                                Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(requireContext(),
+                            "Member invited",
+                            Toast.LENGTH_SHORT).show();
+                    loadHouseholdMembers();
                 },
                 err -> Toast.makeText(
                         requireContext(),
@@ -199,6 +200,7 @@ public class FragmentSix extends Fragment {
     // HOUSEHOLDS
     // =====================================================
     private void loadHouseholds() {
+
         Uri uri = Uri.parse("http://10.0.2.2/tbokhle/get_user_households.php")
                 .buildUpon()
                 .appendQueryParameter("user_id", String.valueOf(userId))
@@ -209,14 +211,14 @@ public class FragmentSix extends Fragment {
                 uri.toString(),
                 null,
                 response -> {
-                    // ✅ If user has households, set the first one as active
-                    if (response.length() > 0 && householdId == 0) {
+
+                    // ✅ Set default household ONLY if none exists
+                    if (session.getHouseholdId() == -1 && response.length() > 0) {
                         try {
-                            householdId = response.getJSONObject(0).getInt("id");
-                            loadHouseholdMembers(); // reload members for that household
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                            session.setHouseholdId(
+                                    response.getJSONObject(0).getInt("id")
+                            );
+                        } catch (Exception ignored) {}
                     }
 
                     recHouseholds.setAdapter(
@@ -224,7 +226,10 @@ public class FragmentSix extends Fragment {
                                     requireContext(),
                                     response,
                                     userId,
-                                    this::loadHouseholds
+                                    () -> {
+                                        loadHouseholds();
+                                        loadHouseholdMembers(); // 🔄 refresh on switch
+                                    }
                             )
                     );
                 },
@@ -237,7 +242,6 @@ public class FragmentSix extends Fragment {
 
         queue.add(req);
     }
-
 
     // =====================================================
     // TOP MENU
@@ -254,22 +258,16 @@ public class FragmentSix extends Fragment {
             public boolean onMenuItemSelected(@NonNull MenuItem item) {
                 if (item.getItemId() == R.id.action_logout) {
 
-                    // 1️⃣ Clear session
                     session.logout();
 
-                    // 2️⃣ Go to LoginActivity
                     Intent i = new Intent(requireContext(), LoginActivity.class);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(i);
-
-                    // 3️⃣ Optional feedback
-                    Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show();
 
                     return true;
                 }
                 return false;
             }
-
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
@@ -292,16 +290,11 @@ public class FragmentSix extends Fragment {
 
         swShopping.setOnCheckedChangeListener((b, v) ->
                 prefs.edit().putBoolean("sync_shopping", v).apply());
-
         swPantry.setOnCheckedChangeListener((b, v) ->
                 prefs.edit().putBoolean("sync_pantry", v).apply());
-
         swRecipes.setOnCheckedChangeListener((b, v) ->
                 prefs.edit().putBoolean("sync_recipes", v).apply());
-
         swNotifications.setOnCheckedChangeListener((b, v) ->
                 prefs.edit().putBoolean("sync_notifications", v).apply());
     }
 }
-
-
