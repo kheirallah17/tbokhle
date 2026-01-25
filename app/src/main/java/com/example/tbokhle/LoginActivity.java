@@ -78,7 +78,6 @@ public class LoginActivity extends AppCompatActivity {
                 LOGIN_URL,
                 response -> {
                     try {
-                        // Expected JSON: {"status":"success","id":"12","email":"x@x.com"}
                         JSONObject json = new JSONObject(response.trim());
 
                         String status = json.optString("status", "");

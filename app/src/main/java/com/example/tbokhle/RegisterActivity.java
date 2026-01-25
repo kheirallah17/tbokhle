@@ -114,7 +114,7 @@ public class RegisterActivity extends AppCompatActivity {
                 Map<String, String> params = new HashMap<>();
                 params.put("full_name", fullName);
                 params.put("email", email);
-                params.put("password", password); // hashed in PHP
+                params.put("password", password);
                 return params;
             }
         };

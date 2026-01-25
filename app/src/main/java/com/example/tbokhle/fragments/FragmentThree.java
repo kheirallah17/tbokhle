@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -94,19 +95,27 @@ public class FragmentThree extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_three, container, false);
 
-        SwitchCompat swManual = view.findViewById(R.id.swManualEntry);
+        Button btnManual = view.findViewById(R.id.btnManualEntry);
+        Button btnScan = view.findViewById(R.id.btnStartScanning);
 
-        view.findViewById(R.id.btnStartScanning).setOnClickListener(v -> {
-            if (swManual.isChecked()) {
-                Navigation.findNavController(view)
-                        .navigate(R.id.action_scan_to_manual);
-            } else {
-                checkCameraPermission();
-            }
-        });
+        // 👉 Manual entry button
+        btnManual.setOnClickListener(v -> openManualFragment());
+
+        // 👉 Scan button
+        btnScan.setOnClickListener(v -> checkCameraPermission());
 
         return view;
     }
+    private void openManualFragment() {
+
+        requireActivity()
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.nav_host_fragment_activity_main, new FragmentManualAdd())
+                .addToBackStack(null) // so back button works
+                .commit();
+    }
+
 
     // Check camera permission
     private void checkCameraPermission() {
