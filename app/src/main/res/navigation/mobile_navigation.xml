@@ -21,7 +21,11 @@
         android:id="@+id/Scan"
         android:name="com.example.tbokhle.fragments.FragmentThree"
         android:label="Scan"
-        tools:layout="@layout/fragment_three" />
+        tools:layout="@layout/fragment_three">
+        <action
+            android:id="@+id/action_scan_to_manual"
+            app:destination="@id/fragmentManualAdd" />
+    </fragment>
 
     <fragment
         android:id="@+id/Recipes"
@@ -40,5 +44,9 @@
         android:name="com.example.tbokhle.fragments.FragmentSix"
         android:label="Family"
         tools:layout="@layout/fragment_six" />
+    <fragment
+        android:id="@+id/fragmentManualAdd"
+        android:name="com.example.tbokhle.fragments.FragmentManualAdd"
+        android:label="Manual Add" />
 
 </navigation>

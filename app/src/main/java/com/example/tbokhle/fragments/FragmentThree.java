@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.navigation.Navigation;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.activity.result.ActivityResultLauncher;
@@ -97,23 +98,14 @@ public class FragmentThree extends Fragment {
 
         view.findViewById(R.id.btnStartScanning).setOnClickListener(v -> {
             if (swManual.isChecked()) {
-                openManualFragment();
+                Navigation.findNavController(view)
+                        .navigate(R.id.action_scan_to_manual);
             } else {
                 checkCameraPermission();
             }
         });
 
         return view;
-    }
-
-    private void openManualFragment() {
-        FragmentTransaction ft = requireActivity()
-                .getSupportFragmentManager()
-                .beginTransaction();
-
-        ft.replace(R.id.nav_host_fragment_activity_main, new FragmentManualAdd());
-        ft.addToBackStack(null);
-        ft.commit();
     }
 
     // Check camera permission
