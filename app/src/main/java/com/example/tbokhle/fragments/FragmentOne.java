@@ -1,66 +1,98 @@
 package com.example.tbokhle.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import com.android.volley.Request;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.tbokhle.R;
+import com.example.tbokhle.SessionManager;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FragmentOne#newInstance} factory method to
- * create an instance of this fragment.
- */
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class FragmentOne extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String DASHBOARD_URL =
+            "http://10.0.2.2/tbokhle_api/get_dashboard.php";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public FragmentOne() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FragmentOne.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static FragmentOne newInstance(String param1, String param2) {
-        FragmentOne fragment = new FragmentOne();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private TextView tvTotal, tvLow, tvShopping;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.fragment_one, container, false);
+
+        tvTotal = view.findViewById(R.id.tvTotalItems);
+        tvLow = view.findViewById(R.id.tvLowStock);
+        tvShopping = view.findViewById(R.id.tvShopping);
+
+        loadDashboardStats();
+
+        return view;
+    }
+
+    private void loadDashboardStats() {
+
+        SessionManager session = new SessionManager(requireContext());
+        int householdId = session.getHouseholdId();
+
+        if (householdId == -1) {
+            Toast.makeText(requireContext(),
+                    "Household not found for this user",
+                    Toast.LENGTH_SHORT).show();
+            return;
         }
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_one, container, false);
+        StringRequest request = new StringRequest(
+                Request.Method.POST,
+                DASHBOARD_URL,
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+
+                        if (!obj.getString("status").equals("success")) {
+                            Toast.makeText(requireContext(),
+                                    "Server error",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        tvTotal.setText(obj.getString("total"));
+                        tvLow.setText(obj.getString("low_stock"));
+                        tvShopping.setText(obj.getString("shopping"));
+
+                    } catch (Exception e) {
+                        Toast.makeText(requireContext(),
+                                "Parse error: " + response,
+                                Toast.LENGTH_LONG).show();
+                    }
+                },
+                error -> Toast.makeText(requireContext(),
+                        "Network error",
+                        Toast.LENGTH_SHORT).show()
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("household_id", String.valueOf(householdId));
+                return params;
+            }
+        };
+
+        Volley.newRequestQueue(requireContext()).add(request);
     }
 }

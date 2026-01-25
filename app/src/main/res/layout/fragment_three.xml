@@ -34,6 +34,31 @@
             android:layout_marginBottom="20dp"
             android:layout_gravity="center_horizontal" />
 
+        <!-- Manual mode switch -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/tvManualMode"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Manual entry"
+                android:textSize="14sp"
+                android:textColor="#333333" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/swManualEntry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+
         <!-- Scan Frame Card -->
         <LinearLayout
             android:layout_width="match_parent"
