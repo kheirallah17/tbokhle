@@ -1,7 +1,9 @@
 <resources>
+
     <string name="app_name">tbokhle</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <!--kheirallah-->
+
+    <!-- kheirallah -->
     <string-array name="categories">
         <item>Vegetable</item>
         <item>Fruit</item>
@@ -10,7 +12,6 @@
         <item>Beverage</item>
         <item>Other</item>
     </string-array>
-
 
     <!-- Recipes / UI -->
     <string name="based_on_your_available_ingredients">Based on your available ingredients</string>
@@ -60,5 +61,29 @@
     <string name="item_shopping_added_item_info">2L • Dairy • Added by You</string>
     <string name="item_shopping_delete_btn">Delete</string>
     <string name="item_shopping_item_name">Milk</string>
+
+    <!-- From HEAD -->
     <string name="delete_pantry_item">Delete pantry item</string>
+
+    <!-- From maria -->
+    <string name="title_activity_main">Main Activity</string>
+    <string name="manage_your_household">Manage your household</string>
+    <string name="family_members">Family Members</string>
+    <string name="invite">Invite</string>
+    <string name="admin">Admin</string>
+    <string name="you">You</string>
+    <string name="you_email_com">you@email.com</string>
+
+    <!-- Navigation fragments -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="lorem_ipsum">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
+        volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
+        dui nec risus. Maecenas non sodales nisi, vel dictum dolor.
+    </string>
+
 </resources>

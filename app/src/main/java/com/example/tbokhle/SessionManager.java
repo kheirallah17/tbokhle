@@ -5,12 +5,14 @@ import android.content.SharedPreferences;
 
 public class SessionManager {
 
-    // One preferences file for the whole app
     private static final String PREF_NAME = "tbokhle_prefs";
 
     private static final String KEY_IS_LOGGED_IN = "is_logged_in";
     private static final String KEY_USER_ID = "user_id";
     private static final String KEY_EMAIL = "email";
+
+    // ADDED by maria
+    private static final String KEY_HOUSEHOLD_ID = "household_id"; // ← ADDED
 
     private final SharedPreferences sp;
 
@@ -19,11 +21,21 @@ public class SessionManager {
     }
 
     public void saveLogin(String userId, String email) {
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putBoolean(KEY_IS_LOGGED_IN, true);
-        editor.putString(KEY_USER_ID, userId);
-        editor.putString(KEY_EMAIL, email);
-        editor.apply();
+        sp.edit()
+                .putBoolean(KEY_IS_LOGGED_IN, true)
+                .putString(KEY_USER_ID, userId)
+                .putString(KEY_EMAIL, email)
+                .apply();
+    }
+
+    //  ADDED by maria
+    public void setHouseholdId(int householdId) { // ← ADDED
+        sp.edit().putInt(KEY_HOUSEHOLD_ID, householdId).apply();
+    }
+
+    // ADDED by maria
+    public int getHouseholdId() { // ← ADDED
+        return sp.getInt(KEY_HOUSEHOLD_ID, -1);
     }
 
     public boolean isLoggedIn() {
@@ -42,3 +54,4 @@ public class SessionManager {
         sp.edit().clear().apply();
     }
 }
+
