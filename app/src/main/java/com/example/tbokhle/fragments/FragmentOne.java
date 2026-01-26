@@ -30,9 +30,6 @@ public class FragmentOne extends Fragment {
     private static final String DASHBOARD_URL =
             "http://10.0.2.2/tbokhle_api/get_dashboard.php";
 
-    private static final String RECIPES_URL =
-            "http://10.0.2.2/tbokhle_api/get_recent_recipes.php";
-
     private TextView tvTotal, tvLow, tvShopping;
     private RecyclerView rvRecipes;
 
@@ -48,18 +45,11 @@ public class FragmentOne extends Fragment {
         tvLow = view.findViewById(R.id.tvLowStock);
         tvShopping = view.findViewById(R.id.tvShopping);
 
-        rvRecipes = view.findViewById(R.id.rvRecipes);
-        rvRecipes.setLayoutManager(new LinearLayoutManager(requireContext()));
-
         loadDashboardStats();
-        loadRecentRecipes();
 
         return view;
     }
 
-    // ==========================
-    // DASHBOARD STATS
-    // ==========================
     private void loadDashboardStats() {
 
         SessionManager session = new SessionManager(requireContext());
@@ -102,26 +92,6 @@ public class FragmentOne extends Fragment {
                 return params;
             }
         };
-
-        Volley.newRequestQueue(requireContext()).add(request);
-    }
-    private void loadRecentRecipes() {
-
-        JsonArrayRequest request = new JsonArrayRequest(
-                Request.Method.GET,
-                RECIPES_URL,
-                null,
-                response -> {
-
-                    RecipesAdapter adapter =
-                            new RecipesAdapter(requireContext(), response);
-
-                    rvRecipes.setAdapter(adapter);
-                },
-                error -> Toast.makeText(requireContext(),
-                        "Recipes load error",
-                        Toast.LENGTH_SHORT).show()
-        );
 
         Volley.newRequestQueue(requireContext()).add(request);
     }

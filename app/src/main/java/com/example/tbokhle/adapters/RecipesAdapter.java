@@ -39,13 +39,6 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapter.ViewHold
         this.fragment = fragment;
         this.queue = Volley.newRequestQueue(context);
     }
-    // Used in FragmentOne (dashboard recent recipes)
-    public RecipesAdapter(Context context, JSONArray recipes) {
-        this.context = context;
-        this.recipes = recipes;
-        this.fragment = null; // not needed here
-        this.queue = Volley.newRequestQueue(context);
-    }
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
