@@ -31,7 +31,6 @@ public class FragmentOne extends Fragment {
             "http://10.0.2.2/tbokhle_api/get_dashboard.php";
 
     private TextView tvTotal, tvLow, tvShopping;
-    private RecyclerView rvRecipes;
 
     @Override
     public View onCreateView(
