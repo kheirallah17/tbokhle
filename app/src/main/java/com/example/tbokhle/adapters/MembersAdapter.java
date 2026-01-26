@@ -43,11 +43,11 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.ViewHold
     public MembersAdapter(Context context,
                           JSONArray members,
                           FragmentSix fragment,
-                          int currentUserId) {   // 🔹 ADDED
+                          int currentUserId) {
         this.context = context;
         this.members = members;
         this.fragment = fragment;
-        this.currentUserId = currentUserId;     // 🔹 ADDED
+        this.currentUserId = currentUserId;
         this.queue = Volley.newRequestQueue(context);
     }
 

@@ -57,7 +57,7 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_delete"
+            android:src="@drawable/outline_delete_24"
             android:contentDescription="@string/delete_pantry_item" />
     </RelativeLayout>
 

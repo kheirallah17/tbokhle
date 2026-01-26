@@ -56,7 +56,7 @@ public class FragmentFour extends Fragment {
         btnVeg = view.findViewById(R.id.btnVeg);
         btnProtein = view.findViewById(R.id.btnProtein);
 
-        // IMPORTANT: first load will set adapter
+        //  first load will set adapter
         btnAll.setOnClickListener(filterClickListener("all"));
         btnQuick.setOnClickListener(filterClickListener("quick"));
         btnVeg.setOnClickListener(filterClickListener("veg"));
@@ -74,7 +74,7 @@ public class FragmentFour extends Fragment {
     }
 
     // ==========================
-    // TEMPLATE: Filter Listener
+    //  Filter Listener
     // ==========================
     private View.OnClickListener filterClickListener(final String filter) {
         return new View.OnClickListener() {
@@ -87,7 +87,7 @@ public class FragmentFour extends Fragment {
     }
 
     // ==========================
-    // TEMPLATE: Search Listener
+    // Search Listener
     // ==========================
     private SearchView.OnQueryTextListener searchListener() {
         return new SearchView.OnQueryTextListener() {
@@ -108,7 +108,7 @@ public class FragmentFour extends Fragment {
     }
 
     // ==========================
-    // MAIN LOAD METHOD (YOUR STYLE)
+    // MAIN LOAD METHOD
     // ==========================
     public void getAllRecipesFromDb() {
 
@@ -122,8 +122,8 @@ public class FragmentFour extends Fragment {
                     @Override
                     public void onResponse(JSONArray response) {
 
-                        // TEMPLATE STYLE: create adapter again (no updateData)
-                        adapter = new RecipesAdapter(requireContext(), response, FragmentFour.this);
+                        // create adapter again
+                        adapter = new RecipesAdapter(requireContext(), response);
                         recView.setAdapter(adapter);
                     }
                 },
@@ -157,7 +157,7 @@ public class FragmentFour extends Fragment {
     // CALLED FROM ADAPTER VIEW HOLDER CLICK
     // ==========================
     public void openRecipeDetails(int recipeId) {
-        // NEXT TASK: navigate to recipe details screen
+        //  navigate to recipe details screen
         Toast.makeText(requireContext(), "Recipe ID: " + recipeId, Toast.LENGTH_SHORT).show();
     }
 }

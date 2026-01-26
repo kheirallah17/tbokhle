@@ -67,7 +67,7 @@ public class FragmentSix extends Fragment {
 
         session = new SessionManager(requireContext());
 
-        // 🔒 Security check
+        // Security check
         if (!session.isLoggedIn()) {
             startActivity(new Intent(requireContext(), LoginActivity.class));
             requireActivity().finish();
@@ -112,7 +112,7 @@ public class FragmentSix extends Fragment {
     // =====================================================
     public void loadHouseholdMembers() {
 
-        int householdId = session.getHouseholdId(); // ✅ SINGLE SOURCE
+        int householdId = session.getHouseholdId(); //  SINGLE SOURCE
 
         if (householdId == -1) return;
 
@@ -165,7 +165,7 @@ public class FragmentSix extends Fragment {
 
     private void inviteMember(String email) {
 
-        int householdId = session.getHouseholdId(); // ✅ ALWAYS FROM SESSION
+        int householdId = session.getHouseholdId(); //  ALWAYS FROM SESSION
 
         String url = "http://10.0.2.2/tbokhle/invite_household_member.php";
 
@@ -228,7 +228,7 @@ public class FragmentSix extends Fragment {
                                     userId,
                                     () -> {
                                         loadHouseholds();
-                                        loadHouseholdMembers(); // 🔄 refresh on switch
+                                        loadHouseholdMembers(); //  refresh on switch
                                     }
                             )
                     );

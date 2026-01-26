@@ -53,14 +53,14 @@ public class HouseholdsAdapter extends RecyclerView.Adapter<HouseholdsAdapter.Vi
             tvRole = itemView.findViewById(R.id.tvRole);
             imgAvatar = itemView.findViewById(R.id.imgAvatar);
 
-            itemView.setOnClickListener(v -> selectHousehold());     // 🔹 CHANGED
-            itemView.setOnLongClickListener(v -> {                   // 🔹 ADDED
+            itemView.setOnClickListener(v -> selectHousehold());
+            itemView.setOnLongClickListener(v -> {
                 handleLeave();
                 return true;
             });
         }
 
-        // 🔹 ADDED: switch household
+        // switch household
         private void selectHousehold() {
             int pos = getBindingAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;
@@ -70,16 +70,15 @@ public class HouseholdsAdapter extends RecyclerView.Adapter<HouseholdsAdapter.Vi
                 int householdId = h.getInt("id");
 
                 SessionManager sm = new SessionManager(context);
-                sm.setHouseholdId(householdId); // ✅ ACTIVE HOUSEHOLD SET
+                sm.setHouseholdId(householdId); // ACTIVE HOUSEHOLD SET
 
                 Toast.makeText(context, "Household switched", Toast.LENGTH_SHORT).show();
 
-                reloadCallback.run(); // 🔄 reload UI
+                reloadCallback.run(); // reload UI
 
             } catch (JSONException ignored) {}
         }
 
-        // 🔹 MOVED logic here (unchanged behavior)
         private void handleLeave() {
             int pos = getBindingAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;

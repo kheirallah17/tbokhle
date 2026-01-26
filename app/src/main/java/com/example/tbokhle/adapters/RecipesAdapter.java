@@ -1,6 +1,7 @@
 package com.example.tbokhle.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,15 +29,13 @@ import org.json.JSONObject;
 public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapter.ViewHolder> {
 
     private final Context context;
-    private final FragmentFour fragment;
     private final RequestQueue queue;
 
     private JSONArray recipes;
 
-    public RecipesAdapter(Context context, JSONArray recipes, FragmentFour fragment) {
+    public RecipesAdapter(Context context, JSONArray recipes) {
         this.context = context;
         this.recipes = recipes;
-        this.fragment = fragment;
         this.queue = Volley.newRequestQueue(context);
     }
 
@@ -65,7 +64,7 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapter.ViewHold
                             JSONObject r = recipes.getJSONObject(pos);
                             int recipeId = r.getInt("id");
 
-                            android.content.Intent i = new android.content.Intent(context, com.example.tbokhle.RecipeDetailsActivity.class);
+                            Intent i = new Intent(context, com.example.tbokhle.RecipeDetailsActivity.class);
                             i.putExtra("recipe_id", recipeId);
                             context.startActivity(i);
 
