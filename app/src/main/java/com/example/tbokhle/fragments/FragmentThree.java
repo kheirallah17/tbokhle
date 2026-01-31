@@ -98,10 +98,10 @@ public class FragmentThree extends Fragment {
         Button btnManual = view.findViewById(R.id.btnManualEntry);
         Button btnScan = view.findViewById(R.id.btnStartScanning);
 
-        // 👉 Manual entry button
+        // Manual entry button
         btnManual.setOnClickListener(v -> openManualFragment());
 
-        // 👉 Scan button
+        // Scan button
         btnScan.setOnClickListener(v -> checkCameraPermission());
 
         return view;
